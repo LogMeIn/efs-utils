@@ -60,7 +60,7 @@ LOG_FILE = 'mount-watchdog.log'
 
 STATE_FILE_DIR = '/var/run/efs'
 
-PRIVATE_KEY_FILE = '/etc/amazon/efs/privateKey.pem'
+PRIVATE_KEY_FILE = STATE_FILE_DIR + '/privateKey.pem'
 DEFAULT_REFRESH_SELF_SIGNED_CERT_INTERVAL_MIN = 60
 NOT_BEFORE_MINS = 15
 NOT_AFTER_HOURS = 3
@@ -569,13 +569,14 @@ def read_config(config_file=CONFIG_FILE):
 
 
 def check_certificate(config, state, state_file_dir, state_file, base_path=STATE_FILE_DIR):
+    private_key_exists = os.path.isfile(get_private_key_path())
     certificate_creation_time = datetime.strptime(state['certificateCreationTime'], CERT_DATETIME_FORMAT)
     certificate_exists = os.path.isfile(state['certificate'])
     certificate_renewal_interval_secs = get_certificate_renewal_interval_mins(config) * 60
     # creation instead of NOT_BEFORE datetime is used for refresh of cert because NOT_BEFORE derives from creation datetime
     should_refresh_cert = (get_utc_now() - certificate_creation_time).total_seconds() > certificate_renewal_interval_secs
 
-    if certificate_exists and not should_refresh_cert:
+    if private_key_exists and certificate_exists and not should_refresh_cert:
         return
 
     ap_state = state.get('accessPoint')

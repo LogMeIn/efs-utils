@@ -83,7 +83,7 @@ LOG_FILE = 'mount.log'
 
 STATE_FILE_DIR = '/var/run/efs'
 
-PRIVATE_KEY_FILE = '/etc/amazon/efs/privateKey.pem'
+PRIVATE_KEY_FILE = STATE_FILE_DIR + '/privateKey.pem'
 DATE_ONLY_FORMAT = '%Y%m%d'
 SIGV4_DATETIME_FORMAT = '%Y%m%dT%H%M%SZ'
 CERT_DATETIME_FORMAT = '%y%m%d%H%M%SZ'
