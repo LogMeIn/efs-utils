@@ -339,7 +339,11 @@ def get_aws_security_credentials(use_iam, awsprofile=None, aws_creds_uri=None):
             return credentials, credentials_source
 
     if WEB_IDENTITY_ROLE_ARN_ENV in os.environ and WEB_IDENTITY_TOKEN_FILE_ENV in os.environ:
-        credentials, credentials_source = get_aws_security_credentials_from_webidentity(os.environ[WEB_IDENTITY_ROLE_ARN_ENV], os.environ[WEB_IDENTITY_TOKEN_FILE_ENV], False)
+        credentials, credentials_source = get_aws_security_credentials_from_webidentity(
+            os.environ[WEB_IDENTITY_ROLE_ARN_ENV],
+            os.environ[WEB_IDENTITY_TOKEN_FILE_ENV],
+            False
+        )
         if credentials and credentials_source:
             return credentials, credentials_source
 
@@ -415,7 +419,10 @@ def get_aws_security_credentials_from_webidentity(role_arn, token_file, is_fatal
     resp = url_request_helper(webidentity_url, unsuccessful_resp, url_error_msg, headers={'Accept': 'application/json'})
 
     if resp:
-        creds = resp.get('AssumeRoleWithWebIdentityResponse', {}).get('AssumeRoleWithWebIdentityResult', {}).get('Credentials', {})
+        creds = resp \
+                .get('AssumeRoleWithWebIdentityResponse', {}) \
+                .get('AssumeRoleWithWebIdentityResult', {}) \
+                .get('Credentials', {})
         if all(k in creds for k in ['AccessKeyId', 'SecretAccessKey', 'SessionToken']):
             return {
                 'AccessKeyId': creds['AccessKeyId'],

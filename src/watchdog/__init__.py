@@ -196,11 +196,8 @@ def get_aws_security_credentials_from_webidentity(role_arn, token_file):
         with open(token_file, 'r') as f:
             token = f.read()
     except Exception as e:
-        if is_fatal:
-            unsuccessful_resp = 'Error reading token file %s: %s' % (token_file, e)
-            fatal_error(unsuccessful_resp, unsuccessful_resp)
-        else:
-            return None, None
+        logging.error('Error reading token file %s: %s', token_file, e)
+        return None
 
     webidentity_url = STS_ENDPOINT_URL + '?' + urlencode({
         'Version': '2011-06-15',
@@ -216,7 +213,10 @@ def get_aws_security_credentials_from_webidentity(role_arn, token_file):
     resp = url_request_helper(webidentity_url, unsuccessful_resp, url_error_msg, headers={'Accept': 'application/json'})
 
     if resp:
-        creds = resp.get('AssumeRoleWithWebIdentityResponse', {}).get('AssumeRoleWithWebIdentityResult', {}).get('Credentials', {})
+        creds = resp \
+                .get('AssumeRoleWithWebIdentityResponse', {}) \
+                .get('AssumeRoleWithWebIdentityResult', {}) \
+                .get('Credentials', {})
         if all(k in creds for k in ['AccessKeyId', 'SecretAccessKey', 'SessionToken']):
             return {
                 'AccessKeyId': creds['AccessKeyId'],
